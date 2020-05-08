@@ -126,7 +126,9 @@ public class RegisterActivity extends AppCompatActivity {
                 } else if (needHelpButton.isChecked()) {
                     reacher = true;
                 }
-                FirebaseDatabase.getInstance().getReference("profiles").push().setValue(new User(authResult.getUser().getUid(),nameInput.getText().toString().trim(), 0,0,0,null,null,reacher,giver));
+                FirebaseDatabase.getInstance().getReference("profiles").child(mAuth.getUid())
+                        .setValue(new User(nameInput.getText().toString().trim(),
+                                0,0,0,null,null,reacher,giver));
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 progressBar.setVisibility(INVISIBLE);
                 startActivity(intent);

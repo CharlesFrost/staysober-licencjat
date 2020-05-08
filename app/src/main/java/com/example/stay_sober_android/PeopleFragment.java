@@ -51,7 +51,7 @@ public class PeopleFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
-                    if (user.getUid().equals(mAuth.getUid())) {
+                    if (userSnapshot.getKey().equals(mAuth.getUid())) {
                         currentUser = user;
                     }
                 }
@@ -70,7 +70,7 @@ public class PeopleFragment extends Fragment {
                 users.clear();
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
-                    if (!user.getUid().equals(mAuth.getUid()) && (user.isGiver()==currentUser.isReacher() || user.isReacher()==currentUser.isGiver())) {
+                    if (!userSnapshot.getKey().equals(mAuth.getUid()) && (user.isGiver()==currentUser.isReacher() || user.isReacher()==currentUser.isGiver())) {
                         users.add(user);
                     }
                 }

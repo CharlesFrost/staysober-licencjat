@@ -75,6 +75,7 @@ public class ChatFragment extends Fragment {
         sendBtn = getView().findViewById(R.id.public_chat_send_bt);
         sendImageBtn = getView().findViewById(R.id.public_chat_imageBtn);
         mAuth = FirebaseAuth.getInstance();
+
         messagesListView = getView().findViewById(R.id.public_chat_listview);
         storageReference = FirebaseStorage.getInstance().getReference();
         displayMessage();
@@ -93,14 +94,16 @@ public class ChatFragment extends Fragment {
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendMessage(v);
+                sendMessage(messageContent.getText().toString());
             }
         });
     }
 
-    public void sendMessage(View view) {
-        myDatabase.push().setValue(new ChatMessage(messageContent.getText().toString(), mAuth.getCurrentUser().getDisplayName()));
-        messageContent.setText("");
+    public void sendMessage(String content) {
+        if (!content.isEmpty()) {
+            myDatabase.push().setValue(new ChatMessage(content, mAuth.getCurrentUser().getDisplayName()));
+            messageContent.setText("");
+        }
     }
 
     public void displayMessage() {
@@ -116,9 +119,6 @@ public class ChatFragment extends Fragment {
                 imageView.setVisibility(View.GONE);
                 messageUser = v.findViewById(R.id.message_user);
                 messageTime = v.findViewById(R.id.message_time);
-                if (model.getMessageUser().equals(mAuth.getCurrentUser().getEmail().split("@")[0])) {
-
-                }
                 if (model.getMessageText().contains("firebasestorage")) {
 //                    messageText.setVisibility(View.GONE);
                     imageView.setVisibility(View.VISIBLE);

@@ -1,7 +1,6 @@
 package com.example.stay_sober_android.models;
 
 public class User {
-    private String uid;
     private String name;
     private double longitude;
     private double latitude;
@@ -10,9 +9,17 @@ public class User {
     private String image;
     private boolean reacher;
     private boolean giver;
+    private String about;
 
-    public User(String uid, String name, double longitude, double latitude, int range, String description, String image, boolean reacher, boolean giver) {
-        this.uid = uid;
+    public String getAbout() {
+        return about;
+    }
+
+    public void setAbout(String about) {
+        this.about = about;
+    }
+
+    public User(String name, double longitude, double latitude, int range, String description, String image, boolean reacher, boolean giver) {
         this.name = name;
         this.longitude = longitude;
         this.latitude = latitude;
@@ -23,9 +30,6 @@ public class User {
         this.giver = giver;
     }
 
-    public User(String uid) {
-        this.uid = uid;
-    }
 
     public User() {
     }
@@ -54,13 +58,6 @@ public class User {
         this.giver = giver;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
 
     public double getLongitude() {
         return longitude;
