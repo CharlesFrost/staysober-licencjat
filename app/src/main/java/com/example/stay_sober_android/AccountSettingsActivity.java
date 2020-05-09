@@ -36,24 +36,47 @@ public class AccountSettingsActivity extends AppCompatActivity {
     private CheckBox bothCheckbox;
     private RadioButton needHelpButton;
     private RadioButton offerHelpRadio;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_settings);
         mAuth = FirebaseAuth.getInstance();
-        initRangeBar();
         saveBtn = findViewById(R.id.saveAccounDatatBtn);
         myDatabase = FirebaseDatabase.getInstance().getReference("profiles");
         bothCheckbox = findViewById(R.id.bothCheckboxSettings);
         needHelpButton = findViewById(R.id.needHelpButtonSettings);
         offerHelpRadio = findViewById(R.id.offerHelpRadioSettings);
 
+        initRangeBar();
+        refreshUser();
+
+
         fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveAccountData(rangeBar);
+            }
+        });
+    }
+
+    private void refreshUser() {
+        myDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    User user = userSnapshot.getValue(User.class);
+                    if (userSnapshot.getKey().equals(mAuth.getUid())) {
+                        currentUser = user;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
     }
@@ -115,8 +138,8 @@ public class AccountSettingsActivity extends AppCompatActivity {
     private void initRangeBar() {
         rangeBar = findViewById(R.id.rangeBar);
         rangeTextView = findViewById(R.id.rangeTextView);
-        rangeBar.setProgress(1);
-        rangeTextView.setText(String.valueOf(1));
+        rangeBar.setProgress(currentUser.getRange());
+        rangeTextView.setText(String.valueOf(currentUser.getRange()));
         rangeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -133,5 +156,13 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
             }
         });
+        if (currentUser.isGiver() && currentUser.isReacher()) {
+            this.bothCheckbox.setChecked(true);
+        } else if (currentUser.isReacher()) {
+            this.needHelpButton.setChecked(true);
+        } else if (currentUser.isGiver()) {
+            this.offerHelpRadio.setChecked(true);
+        }
+        refreshUser();
     }
 }
