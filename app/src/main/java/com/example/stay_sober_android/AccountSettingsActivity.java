@@ -21,9 +21,11 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
 
+import java.sql.SQLOutput;
 import java.util.Locale;
 
 public class AccountSettingsActivity extends AppCompatActivity {
@@ -37,7 +39,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
     private RadioButton needHelpButton;
     private RadioButton offerHelpRadio;
     private User currentUser;
-
+    private TextInputEditText aboutMeInput;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,21 +50,8 @@ public class AccountSettingsActivity extends AppCompatActivity {
         bothCheckbox = findViewById(R.id.bothCheckboxSettings);
         needHelpButton = findViewById(R.id.needHelpButtonSettings);
         offerHelpRadio = findViewById(R.id.offerHelpRadioSettings);
+        aboutMeInput = findViewById(R.id.aboutMe);
 
-        initRangeBar();
-        refreshUser();
-
-
-        fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveAccountData(rangeBar);
-            }
-        });
-    }
-
-    private void refreshUser() {
         myDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -70,7 +59,39 @@ public class AccountSettingsActivity extends AppCompatActivity {
                     User user = userSnapshot.getValue(User.class);
                     if (userSnapshot.getKey().equals(mAuth.getUid())) {
                         currentUser = user;
+                        break;
                     }
+                }
+                rangeBar = findViewById(R.id.rangeBar);
+                rangeTextView = findViewById(R.id.rangeTextView);
+                if (currentUser.getDescription() != null){
+                    aboutMeInput.setText(String.valueOf(currentUser.getDescription()));
+                }
+
+                rangeBar.setProgress(currentUser.getRange());
+                rangeTextView.setText(String.valueOf(currentUser.getRange()));
+                rangeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        rangeTextView.setText(String.valueOf(progress));
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
+                if (currentUser.isGiver() && currentUser.isReacher()) {
+                    bothCheckbox.setChecked(true);
+                } else if (currentUser.isReacher()) {
+                    needHelpButton.setChecked(true);
+                } else if (currentUser.isGiver()) {
+                    offerHelpRadio.setChecked(true);
                 }
             }
 
@@ -79,7 +100,22 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
             }
         });
+
+
+
+        fusedLocationProvider = LocationServices.getFusedLocationProviderClient(this);
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveAccountData(rangeBar);
+                Intent intent = new Intent(AccountSettingsActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
+
+
 
     private void saveAccountData(SeekBar seekBar) {
         if (ActivityCompat.checkSelfPermission(AccountSettingsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -105,6 +141,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
                                     user.setLatitude(location.getLatitude());
                                     user.setLongitude(location.getLongitude());
                                     user.setRange(rangeBar.getProgress());
+                                    user.setDescription(aboutMeInput.getText().toString());
                                     boolean giver = false;
                                     boolean reacher = false;
                                     if (bothCheckbox.isChecked()) {
@@ -112,8 +149,10 @@ public class AccountSettingsActivity extends AppCompatActivity {
                                         reacher = true;
                                     } else if (offerHelpRadio.isChecked()) {
                                         giver = true;
+                                        reacher = false;
                                     } else if (needHelpButton.isChecked()) {
                                         reacher = true;
+                                        giver = false;
                                     }
                                     user.setReacher(reacher);
                                     user.setGiver(giver);
@@ -132,37 +171,5 @@ public class AccountSettingsActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-
-    private void initRangeBar() {
-        rangeBar = findViewById(R.id.rangeBar);
-        rangeTextView = findViewById(R.id.rangeTextView);
-        rangeBar.setProgress(currentUser.getRange());
-        rangeTextView.setText(String.valueOf(currentUser.getRange()));
-        rangeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                rangeTextView.setText(String.valueOf(progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        if (currentUser.isGiver() && currentUser.isReacher()) {
-            this.bothCheckbox.setChecked(true);
-        } else if (currentUser.isReacher()) {
-            this.needHelpButton.setChecked(true);
-        } else if (currentUser.isGiver()) {
-            this.offerHelpRadio.setChecked(true);
-        }
-        refreshUser();
     }
 }

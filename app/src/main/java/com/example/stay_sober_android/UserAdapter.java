@@ -24,7 +24,13 @@ public class UserAdapter extends ArrayAdapter<User> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_user, parent, false);
         }
         TextView displayName =convertView.findViewById(R.id.displayNameTextView);
+        TextView aboutMe =convertView.findViewById(R.id.aboutMePpl);
         displayName.setText(user.getName());
+        if (user.getDescription()!=null) {
+            aboutMe.setText(user.getDescription());
+        } else {
+            aboutMe.setText("Text me! :)");
+        }
         return convertView;
     }
 }

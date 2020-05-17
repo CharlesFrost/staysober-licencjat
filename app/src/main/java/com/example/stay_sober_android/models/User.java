@@ -9,15 +9,7 @@ public class User {
     private String image;
     private boolean reacher;
     private boolean giver;
-    private String about;
 
-    public String getAbout() {
-        return about;
-    }
-
-    public void setAbout(String about) {
-        this.about = about;
-    }
 
     public User(String name, double longitude, double latitude, int range, String description, String image, boolean reacher, boolean giver) {
         this.name = name;
