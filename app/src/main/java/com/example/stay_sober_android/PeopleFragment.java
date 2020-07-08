@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.stay_sober_android.models.Request;
 import com.example.stay_sober_android.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
@@ -62,10 +63,11 @@ public class PeopleFragment extends Fragment {
 
             }
         });
+
+
         myDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                System.out.println(dataSnapshot.getChildrenCount());
                 listAdapter.clear();
                 users.clear();
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
@@ -75,6 +77,7 @@ public class PeopleFragment extends Fragment {
                     }
                 }
                 listAdapter.notifyDataSetChanged();
+                updateList();
             }
 
             @Override
@@ -93,5 +96,30 @@ public class PeopleFragment extends Fragment {
         // Inflate the layout for this fragment
 
         return inflater.inflate(R.layout.fragment_people, container, false);
+    }
+
+    public void updateList() {
+        FirebaseDatabase.getInstance().getReference("requests").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot requestSnapshop : dataSnapshot.getChildren()) {
+                    Request request = requestSnapshop.getValue(Request.class);
+                    if (request.getReceiver().equals(mAuth.getUid()) || request.getSender().equals(mAuth.getUid())) {
+                        for (User user : users) {
+                            if (user.getUserId().equals(request.getSender()) || user.getUserId().equals(request.getReceiver())) {
+                                users.remove(user);
+                                listAdapter.notifyDataSetChanged();
+                                System.out.println("xDD");
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

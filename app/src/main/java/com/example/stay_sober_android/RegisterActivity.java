@@ -128,7 +128,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 FirebaseDatabase.getInstance().getReference("profiles").child(mAuth.getUid())
                         .setValue(new User(nameInput.getText().toString().trim(),
-                                0,0,1,"Welcome!",null,reacher,giver));
+                                0,0,1,"Welcome!",null,reacher,giver,mAuth.getUid()));
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 progressBar.setVisibility(INVISIBLE);
                 startActivity(intent);

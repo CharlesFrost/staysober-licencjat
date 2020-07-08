@@ -9,9 +9,9 @@ public class User {
     private String image;
     private boolean reacher;
     private boolean giver;
+    private String userId;
 
-
-    public User(String name, double longitude, double latitude, int range, String description, String image, boolean reacher, boolean giver) {
+    public User(String name, double longitude, double latitude, int range, String description, String image, boolean reacher, boolean giver, String userId) {
         this.name = name;
         this.longitude = longitude;
         this.latitude = latitude;
@@ -20,6 +20,7 @@ public class User {
         this.image = image;
         this.reacher = reacher;
         this.giver = giver;
+        this.userId = userId;
     }
 
 
@@ -89,5 +90,13 @@ public class User {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

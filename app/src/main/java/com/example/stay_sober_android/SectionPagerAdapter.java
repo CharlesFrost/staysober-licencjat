@@ -23,6 +23,9 @@ public class SectionPagerAdapter extends FragmentPagerAdapter {
             case 2:
                 PeopleFragment peopleFragment = new PeopleFragment();
                 return peopleFragment;
+            case 3:
+                RequestsFragment requestsFragment = new RequestsFragment();
+                return requestsFragment;
             default:
                 return null;
         }
@@ -30,7 +33,7 @@ public class SectionPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 
     public CharSequence getPageTitle(int position) {
@@ -41,6 +44,8 @@ public class SectionPagerAdapter extends FragmentPagerAdapter {
                 return "FRIENDS";
             case 2:
                 return "PEOPLE";
+            case 3:
+                return "REQUESTS";
             default:
                 return null;
         }
