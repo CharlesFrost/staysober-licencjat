@@ -107,7 +107,7 @@ public class AccountSettingsActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveAccountData(rangeBar);
+                saveAccountData();
                 Intent intent = new Intent(AccountSettingsActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -117,7 +117,8 @@ public class AccountSettingsActivity extends AppCompatActivity {
 
 
 
-    private void saveAccountData(SeekBar seekBar) {
+
+    private void saveAccountData() {
         if (ActivityCompat.checkSelfPermission(AccountSettingsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             saveInDb();
         } else {

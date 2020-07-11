@@ -13,12 +13,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.Place;
 import com.example.stay_sober_android.models.ChatModel;
 import com.example.stay_sober_android.models.Request;
 import com.example.stay_sober_android.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +45,6 @@ public class PeopleFragment extends Fragment {
     private User currentUser;
     private ListView pplList;
     private ArrayAdapter<User> listAdapter;
-
     public PeopleFragment() {
 
     }
@@ -88,7 +97,11 @@ public class PeopleFragment extends Fragment {
 
                 updateList();
                 deleteFriends();
-
+                try {
+                    getSpecialist(currentUser);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -185,4 +198,29 @@ public class PeopleFragment extends Fragment {
             }
         });
     }
+
+    public Object getSpecialist(User user) throws IOException {
+        String link = "https://maps.googleapis.com/maps/api/";
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(link)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RestApiService service = retrofit.create(RestApiService.class);
+        Call<List<Place>> call = service.listPlaces(user.getLatitude(),user.getLongitude());
+
+        call.enqueue(new Callback<List<Place>>() {
+            @Override
+            public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
+                for (Place place : response.body()) {
+                    System.out.println(place.getStatus());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Place>> call, Throwable t) {
+
+            }
+        });
+    return null;}
 }
