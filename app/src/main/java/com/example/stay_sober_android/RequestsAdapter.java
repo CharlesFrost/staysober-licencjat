@@ -1,6 +1,7 @@
 package com.example.stay_sober_android;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,12 @@ public class RequestsAdapter extends ArrayAdapter<Request> {
         TextView addPerson = convertView.findViewById(R.id.sendRequestToPerson);
         aboutMe.setVisibility(View.INVISIBLE);
         addPerson.setText("OPEN");
+        addPerson.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.getContext().startActivity(new Intent(v.getContext(),ProfileActivity.class).putExtra("senderId",request.getSender()));
+            }
+        });
         return convertView;
     }
 }

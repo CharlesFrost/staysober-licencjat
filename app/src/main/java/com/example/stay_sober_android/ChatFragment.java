@@ -75,8 +75,8 @@ public class ChatFragment extends Fragment {
         sendBtn = getView().findViewById(R.id.public_chat_send_bt);
         sendImageBtn = getView().findViewById(R.id.public_chat_imageBtn);
         mAuth = FirebaseAuth.getInstance();
-
         messagesListView = getView().findViewById(R.id.public_chat_listview);
+
         storageReference = FirebaseStorage.getInstance().getReference();
         displayMessage();
 
@@ -95,6 +95,7 @@ public class ChatFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 sendMessage(messageContent.getText().toString());
+                System.out.println("xDDD");
             }
         });
     }

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.stay_sober_android.models.ChatModel;
 import com.example.stay_sober_android.models.Request;
 import com.example.stay_sober_android.models.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +27,7 @@ import java.util.List;
  */
 public class PeopleFragment extends Fragment {
     private DatabaseReference myDatabase;
+    private DatabaseReference chatsDatabase;
     private ArrayList<User> users;
     private TextView textView;
     private FirebaseAuth mAuth;
@@ -42,6 +44,8 @@ public class PeopleFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         users = new ArrayList<>();
         myDatabase = FirebaseDatabase.getInstance().getReference("profiles");
+        chatsDatabase = FirebaseDatabase.getInstance().getReference("chats");
+
         mAuth = FirebaseAuth.getInstance();
         pplList = getView().findViewById(R.id.pplList);
 
@@ -77,7 +81,10 @@ public class PeopleFragment extends Fragment {
                     }
                 }
                 listAdapter.notifyDataSetChanged();
+
                 updateList();
+                deleteFriends();
+
             }
 
             @Override
@@ -85,6 +92,8 @@ public class PeopleFragment extends Fragment {
 
             }
         });
+
+
 
 
 
@@ -109,10 +118,41 @@ public class PeopleFragment extends Fragment {
                             if (user.getUserId().equals(request.getSender()) || user.getUserId().equals(request.getReceiver())) {
                                 users.remove(user);
                                 listAdapter.notifyDataSetChanged();
-                                System.out.println("xDD");
                             }
                         }
                     }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    public void deleteFriends() {
+        chatsDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot chatsSnapshop : dataSnapshot.getChildren()) {
+                    ChatModel chatModel = chatsSnapshop.getValue(ChatModel.class);
+                    if (chatModel.getSecondPerson() != null) {
+
+
+                    if (chatModel.getFirstPerson().equals(mAuth.getUid()) || chatModel.getSecondPerson().equals(mAuth.getUid())) {
+                        List<User> usersToDelete = new ArrayList<>();
+                        for (User user : users) {
+                            if (user.getUserId().equals(chatModel.getFirstPerson()) || user.getUserId().equals(chatModel.getSecondPerson())) {
+                                usersToDelete.add(user);
+                            }
+                        }
+                        users.removeAll(usersToDelete);
+                        listAdapter.notifyDataSetChanged();
+                    }
+                }
                 }
             }
 
