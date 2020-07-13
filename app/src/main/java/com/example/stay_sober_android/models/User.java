@@ -23,6 +23,9 @@ public class User {
         this.userId = userId;
     }
 
+    public User(String name) {
+        this.name = name;
+    }
 
     public User() {
     }

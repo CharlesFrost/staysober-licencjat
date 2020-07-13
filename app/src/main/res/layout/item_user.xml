@@ -11,6 +11,7 @@ android:minHeight="50dp">
     <TextView
             android:layout_marginLeft="10dp"
             android:id="@+id/displayNameTextView"
+            android:maxWidth="300dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"

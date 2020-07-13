@@ -37,4 +37,6 @@ public class ChatModel {
     public void setChatId(String chatId) {
         this.chatId = chatId;
     }
+
+
 }

@@ -1,19 +1,26 @@
 package com.example.stay_sober_android;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.Place;
+import com.example.stay_sober_android.models.Doctor;
+import com.example.stay_sober_android.models.gmaps.*;
 import com.example.stay_sober_android.models.ChatModel;
 import com.example.stay_sober_android.models.Request;
 import com.example.stay_sober_android.models.User;
@@ -30,6 +37,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -45,6 +53,7 @@ public class PeopleFragment extends Fragment {
     private User currentUser;
     private ListView pplList;
     private ArrayAdapter<User> listAdapter;
+
 
     public PeopleFragment() {
 
@@ -98,7 +107,8 @@ public class PeopleFragment extends Fragment {
 
                 updateList();
                 deleteFriends();
-//                getSpecialist(currentUser);
+                getSpecialist(currentUser);
+
 
             }
 
@@ -144,12 +154,17 @@ public class PeopleFragment extends Fragment {
                 for (DataSnapshot requestSnapshop : dataSnapshot.getChildren()) {
                     Request request = requestSnapshop.getValue(Request.class);
                     if (request.getReceiver().equals(mAuth.getUid()) || request.getSender().equals(mAuth.getUid())) {
+                        List<User> usersToDelete = new ArrayList<>();
                         for (User user : users) {
-                            if (user.getUserId().equals(request.getSender()) || user.getUserId().equals(request.getReceiver())) {
-                                users.remove(user);
-                                listAdapter.notifyDataSetChanged();
+                            if (user instanceof Doctor) {
+                                break;
+                            }
+                            if ((user.getUserId().equals(request.getSender()) || user.getUserId().equals(request.getReceiver()))) {
+                                usersToDelete.add(user);
                             }
                         }
+                        users.removeAll(usersToDelete);
+                        listAdapter.notifyDataSetChanged();
                     }
                 }
 
@@ -174,7 +189,7 @@ public class PeopleFragment extends Fragment {
                             List<User> usersToDelete = new ArrayList<>();
                             for (User user : users) {
                                 if ((user.getUserId().equals(chatModel.getFirstPerson()) && mAuth.getUid().equals(chatModel.getSecondPerson()))
-                                || (mAuth.getUid().equals(chatModel.getFirstPerson()) && user.getUserId().equals(chatModel.getSecondPerson()))) {
+                                        || (mAuth.getUid().equals(chatModel.getFirstPerson()) && user.getUserId().equals(chatModel.getSecondPerson()))) {
                                     usersToDelete.add(user);
                                 }
                             }
@@ -200,21 +215,47 @@ public class PeopleFragment extends Fragment {
                 .build();
 
         RestApiService service = retrofit.create(RestApiService.class);
-        Call<List<Place>> call = service.listPlaces(user.getLatitude(), user.getLongitude());
+        Call<Place> call = service.listPlaces(user.getLatitude() + "," + user.getLongitude(), "health", "uzależnienie", "AIzaSyC-rxywikKFlONC7EXfGAIWONDI1uBHyN4", "200000", "formatted_phone_number");
 
-        call.enqueue(new Callback<List<Place>>() {
+        call.enqueue(new Callback<Place>() {
+            int number = 0;
+
             @Override
-            public void onResponse(Call<List<Place>> call, Response<List<Place>> response) {
-                for (Place place : response.body()) {
-                    System.out.println(place.getStatus());
+            public void onResponse(Call<Place> call, Response<Place> response) {
+                for (Result result : response.body().getResults()) {
+                    if (number > 4) {
+                        System.out.println(number);
+                        return;
+                    }
+                    String placeId = result.getPlaceId();
+                    Call<com.example.stay_sober_android.models.gmaps.one_place.Place> secondCall = service.getPlace(placeId, "formatted_phone_number", "AIzaSyC-rxywikKFlONC7EXfGAIWONDI1uBHyN4");
+                    secondCall.enqueue(new Callback<com.example.stay_sober_android.models.gmaps.one_place.Place>() {
+                        @Override
+                        public void onResponse(Call<com.example.stay_sober_android.models.gmaps.one_place.Place> call, Response<com.example.stay_sober_android.models.gmaps.one_place.Place> response) {
+                            User user = new Doctor(result.getName(), response.body().getResult().getFormattedPhoneNumber());
+                            users.add(user);
+                            listAdapter.notifyDataSetChanged();
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<com.example.stay_sober_android.models.gmaps.one_place.Place> call, Throwable t) {
+
+                        }
+                    });
+                    number++;
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Place>> call, Throwable t) {
+            public void onFailure(Call<Place> call, Throwable t) {
+                System.out.println(t.getLocalizedMessage());
 
             }
         });
+
         return null;
     }
+
+
 }
