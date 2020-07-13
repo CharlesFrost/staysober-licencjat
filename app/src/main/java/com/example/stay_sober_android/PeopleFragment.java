@@ -45,6 +45,7 @@ public class PeopleFragment extends Fragment {
     private User currentUser;
     private ListView pplList;
     private ArrayAdapter<User> listAdapter;
+
     public PeopleFragment() {
 
     }
@@ -59,7 +60,7 @@ public class PeopleFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         pplList = getView().findViewById(R.id.pplList);
 
-        listAdapter = new UserAdapter(getActivity(),users);
+        listAdapter = new UserAdapter(getActivity(), users);
         pplList.setAdapter(listAdapter);
         myDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -91,17 +92,14 @@ public class PeopleFragment extends Fragment {
                         if (!userSnapshot.getKey().equals(mAuth.getUid()) && (user.isGiver() == currentUser.isReacher() || user.isReacher() == currentUser.isGiver())) {
                             users.add(user);
                         }
-                }
+                    }
                 }
                 listAdapter.notifyDataSetChanged();
 
                 updateList();
                 deleteFriends();
-                try {
-                    getSpecialist(currentUser);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                getSpecialist(currentUser);
+
             }
 
             @Override
@@ -111,16 +109,12 @@ public class PeopleFragment extends Fragment {
         });
 
 
-
-
-
     }
 
     private static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
         if ((lat1 == lat2) && (lon1 == lon2)) {
             return 0;
-        }
-        else {
+        } else {
             double theta = lon1 - lon2;
             double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
             dist = Math.acos(dist);
@@ -178,17 +172,17 @@ public class PeopleFragment extends Fragment {
                     if (chatModel.getSecondPerson() != null) {
 
 
-                    if (chatModel.getFirstPerson().equals(mAuth.getUid()) || chatModel.getSecondPerson().equals(mAuth.getUid())) {
-                        List<User> usersToDelete = new ArrayList<>();
-                        for (User user : users) {
-                            if (user.getUserId().equals(chatModel.getFirstPerson()) || user.getUserId().equals(chatModel.getSecondPerson())) {
-                                usersToDelete.add(user);
+                        if (chatModel.getFirstPerson().equals(mAuth.getUid()) || chatModel.getSecondPerson().equals(mAuth.getUid())) {
+                            List<User> usersToDelete = new ArrayList<>();
+                            for (User user : users) {
+                                if (user.getUserId().equals(chatModel.getFirstPerson()) || user.getUserId().equals(chatModel.getSecondPerson())) {
+                                    usersToDelete.add(user);
+                                }
                             }
+                            users.removeAll(usersToDelete);
+                            listAdapter.notifyDataSetChanged();
                         }
-                        users.removeAll(usersToDelete);
-                        listAdapter.notifyDataSetChanged();
                     }
-                }
                 }
             }
 
@@ -199,7 +193,7 @@ public class PeopleFragment extends Fragment {
         });
     }
 
-    public Object getSpecialist(User user) throws IOException {
+    public Object getSpecialist(User user) {
         String link = "https://maps.googleapis.com/maps/api/";
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(link)
@@ -207,7 +201,7 @@ public class PeopleFragment extends Fragment {
                 .build();
 
         RestApiService service = retrofit.create(RestApiService.class);
-        Call<List<Place>> call = service.listPlaces(user.getLatitude(),user.getLongitude());
+        Call<List<Place>> call = service.listPlaces(user.getLatitude(), user.getLongitude());
 
         call.enqueue(new Callback<List<Place>>() {
             @Override
@@ -222,5 +216,6 @@ public class PeopleFragment extends Fragment {
 
             }
         });
-    return null;}
+        return null;
+    }
 }
