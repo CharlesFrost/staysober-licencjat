@@ -93,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void registerUser(String email, String password, String repeatPassword) {
 
-        if (!bothCheckbox.isChecked() && !offerHelpRadio.isChecked() && !offerHelpRadio.isChecked()) {
+        if (!bothCheckbox.isChecked() && !offerHelpRadio.isChecked() && !needHelpButton.isChecked()) {
             Toast.makeText(RegisterActivity.this, "Choose your destiny!", Toast.LENGTH_LONG).show();
             return;
         }
