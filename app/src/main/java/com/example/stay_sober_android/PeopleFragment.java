@@ -170,12 +170,11 @@ public class PeopleFragment extends Fragment {
                 for (DataSnapshot chatsSnapshop : dataSnapshot.getChildren()) {
                     ChatModel chatModel = chatsSnapshop.getValue(ChatModel.class);
                     if (chatModel.getSecondPerson() != null) {
-
-
                         if (chatModel.getFirstPerson().equals(mAuth.getUid()) || chatModel.getSecondPerson().equals(mAuth.getUid())) {
                             List<User> usersToDelete = new ArrayList<>();
                             for (User user : users) {
-                                if (user.getUserId().equals(chatModel.getFirstPerson()) || user.getUserId().equals(chatModel.getSecondPerson())) {
+                                if ((user.getUserId().equals(chatModel.getFirstPerson()) && mAuth.getUid().equals(chatModel.getSecondPerson()))
+                                || (mAuth.getUid().equals(chatModel.getFirstPerson()) && user.getUserId().equals(chatModel.getSecondPerson()))) {
                                     usersToDelete.add(user);
                                 }
                             }
