@@ -51,7 +51,7 @@ public class RequestsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                     Request request = userSnapshot.getValue(Request.class);
-                    if (!request.getSender().equals(mAuth.getUid())) {
+                    if (!request.getSender().equals(mAuth.getUid()) && request.getReceiver().equals(mAuth.getUid())) {
                         requests.add(request);
                     }
                 }
