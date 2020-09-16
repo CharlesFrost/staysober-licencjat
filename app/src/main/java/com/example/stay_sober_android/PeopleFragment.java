@@ -215,7 +215,7 @@ public class PeopleFragment extends Fragment {
                 .build();
 
         RestApiService service = retrofit.create(RestApiService.class);
-        Call<Place> call = service.listPlaces(user.getLatitude() + "," + user.getLongitude(), "health", "uzależnienie", "AIzaSyC-rxywikKFlONC7EXfGAIWONDI1uBHyN4", "200000", "formatted_phone_number");
+        Call<Place> call = service.listPlaces(user.getLatitude() + "," + user.getLongitude(), "health", "uzależnienie", "API-KEY", "200000", "formatted_phone_number");
 
         call.enqueue(new Callback<Place>() {
             int number = 0;
@@ -228,7 +228,7 @@ public class PeopleFragment extends Fragment {
                         return;
                     }
                     String placeId = result.getPlaceId();
-                    Call<com.example.stay_sober_android.models.gmaps.one_place.Place> secondCall = service.getPlace(placeId, "formatted_phone_number", "AIzaSyC-rxywikKFlONC7EXfGAIWONDI1uBHyN4");
+                    Call<com.example.stay_sober_android.models.gmaps.one_place.Place> secondCall = service.getPlace(placeId, "formatted_phone_number", "API-KEY");
                     secondCall.enqueue(new Callback<com.example.stay_sober_android.models.gmaps.one_place.Place>() {
                         @Override
                         public void onResponse(Call<com.example.stay_sober_android.models.gmaps.one_place.Place> call, Response<com.example.stay_sober_android.models.gmaps.one_place.Place> response) {
